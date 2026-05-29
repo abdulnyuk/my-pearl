@@ -9,10 +9,10 @@ ARG ALPHA_MINER_URL=https://github.com/AlphaMine-Tech/alpha-miner/releases/downl
 
 RUN apt-get update -qq \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -qq \
-      curl ca-certificates tini \
+      curl ca-certificates tini procps \
  && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p /opt/miner \
+RUN mkdir -p /opt/miner /var/log/alpha-miner \
  && curl -fsSL "$ALPHA_MINER_URL" -o /opt/miner/alpha-miner \
  && echo "$ALPHA_MINER_SHA256  /opt/miner/alpha-miner" | sha256sum -c - \
  && chmod +x /opt/miner/alpha-miner
@@ -20,7 +20,7 @@ RUN mkdir -p /opt/miner \
 COPY entrypoint.sh /opt/miner/entrypoint.sh
 RUN chmod +x /opt/miner/entrypoint.sh
 
-ENV POOL_URL="eu1.alphapool.tech:5566" \
+ENV POOL_URL="stratum+tcp://eu1.alphapool.tech:5566" \
     POOL_PASSWORD="x;d=131072" \
     WORKER_PREFIX="salad"
 

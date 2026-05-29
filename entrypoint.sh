@@ -7,7 +7,7 @@ case "$WALLET" in
   *) echo "[err] WALLET harus mulai prl1" >&2; exit 2 ;;
 esac
 
-POOL="${POOL_URL:-eu1.alphapool.tech:5566}"
+POOL="${POOL_URL:-stratum+tcp://eu1.alphapool.tech:5566}"
 PASS="${POOL_PASSWORD:***"
 PREFIX="${WORKER_PREFIX:-salad}"
 WORKER_ID="${SALAD_MACHINE_ID:-${HOSTNAME:-unknown}}"
@@ -19,10 +19,10 @@ echo "  pool   = $POOL"
 echo "  worker = $WORKER"
 echo "  wallet = $MASK"
 
+mkdir -p /var/log/alpha-miner
+
 exec /opt/miner/alpha-miner \
   --pool "$POOL" \
   --address "$WALLET" \
   --worker "$WORKER" \
-  --password ***"$PASS" \
-  --cuda-schedule-spin \
-  --devices 0
+  --password ***"$PASS"
