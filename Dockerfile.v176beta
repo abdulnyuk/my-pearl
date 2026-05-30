@@ -1,0 +1,29 @@
+# Salad Pearl miner — v1.7.6-beta image
+# Base: nvidia/cuda:12.8.0-runtime-ubuntu22.04 (CUDA 12.8 untuk RTX 5090 sm_120)
+# Miner: alpha-miner v1.7.6-beta pre-baked + SHA256 verified
+# Note: BETA channel — test 1 container dulu sebelum roll out semua
+
+FROM nvidia/cuda:12.8.0-runtime-ubuntu22.04
+
+ARG ALPHA_MINER_SHA256=c84396e2ff4ded14a8c83cd253761b46dd40927c5c43a39a20aac9ff8bdfbfe5
+ARG ALPHA_MINER_URL=https://github.com/AlphaMine-Tech/alpha-miner/releases/download/v1.7.6-beta/alpha-miner
+
+RUN apt-get update -qq \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -qq \
+      curl ca-certificates tini procps \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /opt/miner /var/log/alpha-miner \
+ && curl -fsSL "$ALPHA_MINER_URL" -o /opt/miner/alpha-miner \
+ && echo "$ALPHA_MINER_SHA256  /opt/miner/alpha-miner" | sha256sum -c - \
+ && chmod +x /opt/miner/alpha-miner
+
+COPY entrypoint.sh /opt/miner/entrypoint.sh
+RUN chmod +x /opt/miner/entrypoint.sh
+
+ENV POOL_URL="stratum+tcp://eu1.alphapool.tech:5566" \
+    POOL_PASSWORD="x;d=131072" \
+    WORKER_PREFIX="salad"
+
+ENTRYPOINT ["/usr/bin/tini", "--"]
+CMD ["/opt/miner/entrypoint.sh"]
